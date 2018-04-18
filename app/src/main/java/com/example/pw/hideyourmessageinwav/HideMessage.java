@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,8 +15,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
@@ -30,6 +33,8 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
     private Wavelet wavelet;
     private static final String[] spinnerLevelValues = new String[]{"1", "2", "3", "4"};
     private static final String[] waveletTypes = new String[]{"Haar", "Daubechies D4"};
+
+    CircleProgressBar embeddingProgressBar;
 
     public static Wavelet createWaveletFromType(Wavelet.WaveletType type) {
         Wavelet wavelet;
@@ -54,6 +59,9 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hide_message);
+
+        embeddingProgressBar = (CircleProgressBar) findViewById(R.id.CircleProgressEmbedding);
+        embeddingProgressBar.setColorSchemeResources(android.R.color.holo_green_light);
 
         /// INPUT ///
         ArrayAdapter levelsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, spinnerLevelValues);
@@ -133,29 +141,48 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
     }
 
     public void embedMessage(View v) {
+
         new LongOperation().execute();
+        embeddingProgressBar.setVisibility(View.VISIBLE);
+
+        CountDownTimer timer = new CountDownTimer(2000, 100) {
+            int progress = 0;
+
+            @Override
+            public void onTick(long l) {
+                progress += 5;
+                embeddingProgressBar.setProgress(progress);
+                if (progress >= 100) {
+                    embeddingProgressBar.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                embeddingProgressBar.setVisibility(View.INVISIBLE);
+            }
+        }.start();
+
+
     }
 
     private class LongOperation extends AsyncTask<Void, Void, Void> {
 
+        @Override
         protected void onPreExecute() {
-
         }
 
         @Override
         protected Void doInBackground(Void... arg0) {
 
+            int progress = 0;
+
             try {
                 ///OPEN FILE///
                 WavFile wavFile = WavFile.openWavFile(new File(filePath));
 
-                ///DISPLAY INFO///
-                wavFile.display();
-
                 double[] completeArrayOfSamples = new double[(int) wavFile.getNumFrames()];
-
                 int framesRead;
-
                 int lengthOfSignal = completeArrayOfSamples.length;
 
                 ///READING SIGNAL///
@@ -164,48 +191,24 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
                 }
                 while (framesRead != 0);
 
-                System.out.println("Length of string: " + message.length());
-
                 StegoEngine stegoEngine = new StegoEngine();
 
                 ///EMBEDDING///
-                System.out.println("EMBEDDING");
                 stegoEngine.embedStegoMessageInSignal(completeArrayOfSamples, levelsOfDecomposition, message, wavelet);
 
                 filePath = filePath.substring(0, filePath.length() - 4);
                 filePath = filePath + "embedded.wav";
+
                 ///SAVING FILE///
                 WavFile newWavFile = WavFile.newWavFile(new File(filePath), wavFile.getNumChannels(), wavFile.getNumFrames(), wavFile.getValidBits(), wavFile.getSampleRate());
                 newWavFile.writeFrames(completeArrayOfSamples, (int) wavFile.getNumFrames());
-                newWavFile.display();
 
                 wavFile.close();
                 newWavFile.close();
 
-                ///OPENING FILE WITH EMBEDDED MESSAGE///
-                WavFile embeddedWavFile = WavFile.openWavFile(new File(filePath + ""));
-
-                embeddedWavFile.display();
-
-                completeArrayOfSamples = new double[(int) embeddedWavFile.getNumFrames()];
-                lengthOfSignal = completeArrayOfSamples.length;
-
-                ///READING SIGNAL///
-                do {
-                    framesRead = embeddedWavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
-                }
-                while (framesRead != 0);
-
-                System.out.println("EXCTRACTING");
-                System.out.println("EMBEDDED message: " + message);
-
-                ///DECOMPOSING SIGNAL AND EXTRACTING THE MESSAGE///
-                System.out.println("EXTRACTED Message: " + stegoEngine.extractStegoMessageFromSignal(completeArrayOfSamples, levelsOfDecomposition, wavelet));
-
             } catch (Exception e) {
                 System.err.println(e);
             }
-
 
             return null;
         }
