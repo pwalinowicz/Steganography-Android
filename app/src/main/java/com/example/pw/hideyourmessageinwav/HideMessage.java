@@ -3,6 +3,7 @@ package com.example.pw.hideyourmessageinwav;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -132,73 +133,90 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
     }
 
     public void embedMessage(View v) {
+        new LongOperation().execute();
+    }
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ///OPEN FILE///
-                    WavFile wavFile = WavFile.openWavFile(new File(filePath));
+    private class LongOperation extends AsyncTask<Void, Void, Void> {
 
-                    ///DISPLAY INFO///
-                    wavFile.display();
+        protected void onPreExecute() {
 
-                    double[] completeArrayOfSamples = new double[(int) wavFile.getNumFrames()];
+        }
 
-                    int framesRead;
+        @Override
+        protected Void doInBackground(Void... arg0) {
 
-                    int lengthOfSignal = completeArrayOfSamples.length;
+            try {
+                ///OPEN FILE///
+                WavFile wavFile = WavFile.openWavFile(new File(filePath));
 
-                    ///READING SIGNAL///
-                    do {
-                        framesRead = wavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
-                    }
-                    while (framesRead != 0);
+                ///DISPLAY INFO///
+                wavFile.display();
 
-                    System.out.println("Length of string: " + message.length());
+                double[] completeArrayOfSamples = new double[(int) wavFile.getNumFrames()];
 
-                    StegoEngine stegoEngine = new StegoEngine();
+                int framesRead;
 
-                    ///EMBEDDING///
-                    System.out.println("EMBEDDING");
-                    stegoEngine.embedStegoMessageInSignal(completeArrayOfSamples, levelsOfDecomposition, message, wavelet);
+                int lengthOfSignal = completeArrayOfSamples.length;
 
-                    filePath = filePath.substring(0, filePath.length() - 4);
-                    filePath = filePath + "embedded.wav";
-                    ///SAVING FILE///
-                    WavFile newWavFile = WavFile.newWavFile(new File(filePath), wavFile.getNumChannels(), wavFile.getNumFrames(), wavFile.getValidBits(), wavFile.getSampleRate());
-                    newWavFile.writeFrames(completeArrayOfSamples, (int) wavFile.getNumFrames());
-                    newWavFile.display();
-
-                    wavFile.close();
-                    newWavFile.close();
-
-                    ///OPENING FILE WITH EMBEDDED MESSAGE///
-                    WavFile embeddedWavFile = WavFile.openWavFile(new File(filePath + ""));
-
-                    embeddedWavFile.display();
-
-                    completeArrayOfSamples = new double[(int) embeddedWavFile.getNumFrames()];
-                    lengthOfSignal = completeArrayOfSamples.length;
-
-                    ///READING SIGNAL///
-                    do {
-                        framesRead = embeddedWavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
-                    }
-                    while (framesRead != 0);
-
-                    System.out.println("EXCTRACTING");
-                    System.out.println("EMBEDDED message: " + message);
-
-                    ///DECOMPOSING SIGNAL AND EXTRACTING THE MESSAGE///
-                    System.out.println("EXCRACTED Message: " + stegoEngine.extractStegoMessageFromSignal(completeArrayOfSamples, levelsOfDecomposition, wavelet));
-
-                } catch (Exception e) {
-                    System.err.println(e);
+                ///READING SIGNAL///
+                do {
+                    framesRead = wavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
                 }
+                while (framesRead != 0);
+
+                System.out.println("Length of string: " + message.length());
+
+                StegoEngine stegoEngine = new StegoEngine();
+
+                ///EMBEDDING///
+                System.out.println("EMBEDDING");
+                stegoEngine.embedStegoMessageInSignal(completeArrayOfSamples, levelsOfDecomposition, message, wavelet);
+
+                filePath = filePath.substring(0, filePath.length() - 4);
+                filePath = filePath + "embedded.wav";
+                ///SAVING FILE///
+                WavFile newWavFile = WavFile.newWavFile(new File(filePath), wavFile.getNumChannels(), wavFile.getNumFrames(), wavFile.getValidBits(), wavFile.getSampleRate());
+                newWavFile.writeFrames(completeArrayOfSamples, (int) wavFile.getNumFrames());
+                newWavFile.display();
+
+                wavFile.close();
+                newWavFile.close();
+
+                ///OPENING FILE WITH EMBEDDED MESSAGE///
+                WavFile embeddedWavFile = WavFile.openWavFile(new File(filePath + ""));
+
+                embeddedWavFile.display();
+
+                completeArrayOfSamples = new double[(int) embeddedWavFile.getNumFrames()];
+                lengthOfSignal = completeArrayOfSamples.length;
+
+                ///READING SIGNAL///
+                do {
+                    framesRead = embeddedWavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
+                }
+                while (framesRead != 0);
+
+                System.out.println("EXCTRACTING");
+                System.out.println("EMBEDDED message: " + message);
+
+                ///DECOMPOSING SIGNAL AND EXTRACTING THE MESSAGE///
+                System.out.println("EXTRACTED Message: " + stegoEngine.extractStegoMessageFromSignal(completeArrayOfSamples, levelsOfDecomposition, wavelet));
+
+            } catch (Exception e) {
+                System.err.println(e);
             }
-        });
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+        }
+
 
     }
+
 
 }
