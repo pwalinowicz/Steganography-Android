@@ -1,10 +1,12 @@
 package com.example.pw.hideyourmessageinwav;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -55,6 +57,18 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
             Spinner waveletTypes = (Spinner) findViewById(R.id.waveletTypesSpinner);
             waveletTypes.setAdapter(waveletsAdapter);
             waveletTypes.setOnItemSelectedListener(this);
+
+            Button buttonOK = (Button) findViewById(R.id.buttonOK);
+            buttonOK.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    EditText et = (EditText) findViewById(R.id.textToHide);
+                    message = et.getText().toString();
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                    //et.setText("");
+                    //et.requestFocus();
+                }
+            });
 
             ///OPEN FILE///
             WavFile wavFile = WavFile.openWavFile(new File("d:\\Documents\\Studia\\Inf\\VII+VIII Praca eng\\implemTest\\src\\resources\\0564.wav"));
@@ -119,41 +133,45 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        levelsOfDecomposition = Integer.valueOf(spinnerLevelValues[i]);
-        String stringWaveletType = String.valueOf(waveletTypes[i]);
 
-        Toast.makeText(getApplicationContext(), "" + levelsOfDecomposition, Toast.LENGTH_SHORT).show();
-        Toast.makeText(getApplicationContext(), "" + stringWaveletType, Toast.LENGTH_SHORT).show();
-
-        switch (stringWaveletType) {
-            case "Haar":
-                wavelet = createWaveletFromType(Wavelet.WaveletType.HaarWavelet);
+        switch (adapterView.getId()) {
+            case R.id.waveletTypesSpinner:
+                String stringWaveletType = String.valueOf(waveletTypes[i]);
+                switch (stringWaveletType) {
+                    case "Haar":
+                        wavelet = createWaveletFromType(Wavelet.WaveletType.HaarWavelet);
+                        break;
+                    case "Daubechies D4":
+                        wavelet = createWaveletFromType(Wavelet.WaveletType.DaubechiesD4Wavelet);
+                        break;
+                    default:
+                        wavelet = null;
+                        break;
+                }
+                Toast.makeText(getApplicationContext(), "" + stringWaveletType, Toast.LENGTH_SHORT).show();
                 break;
-            case "Daubechies D4":
-                wavelet = createWaveletFromType(Wavelet.WaveletType.DaubechiesD4Wavelet);
-                break;
-            default:
-                wavelet = null;
+            case R.id.decompLevelSpinner:
+                levelsOfDecomposition = Integer.valueOf(spinnerLevelValues[i]);
+                Toast.makeText(getApplicationContext(), "" + levelsOfDecomposition, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-        levelsOfDecomposition = 0;
-        Toast.makeText(getApplicationContext(), "" + levelsOfDecomposition, Toast.LENGTH_SHORT).show();
-    }
-
-    public void getMessageFromEditText(View v) {
-
-        EditText et = (EditText) findViewById(R.id.textToHide);
-        message = et.getText().toString();
-
-        if (message == "" || message == null) {
-            Toast.makeText(this, "No text?", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        }
 
     }
+
+//    public void getMessageFromEditText(View v) {
+//
+//        EditText et = (EditText) findViewById(R.id.textToHide);
+//        message = et.getText().toString();
+//
+//        if (message == "" || message == null) {
+//            Toast.makeText(getApplicationContext(), "No text?", Toast.LENGTH_SHORT).show();
+//        } else {
+//            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
 }

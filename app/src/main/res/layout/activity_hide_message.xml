@@ -22,13 +22,12 @@
 
     <EditText
         android:id="@+id/textToHide"
-        android:layout_width="352dp"
+        android:layout_width="264dp"
         android:layout_height="49dp"
         android:layout_marginTop="56dp"
         android:ems="10"
         android:hint="write your message"
         android:inputType="textMultiLine"
-        android:onClick="getMessageFromEditText"
         app:layout_constraintTop_toBottomOf="@+id/hideTitle"
         tools:layout_editor_absoluteX="16dp" />
 
@@ -74,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="Search for .wav file on the device"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/waveletTypesSpinner" />
@@ -88,5 +87,15 @@
         android:text="Embed the message"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button3" />
+
+    <Button
+        android:id="@+id/buttonOK"
+        android:layout_width="68dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="104dp"
+        android:text="Ok"
+        app:layout_constraintStart_toEndOf="@+id/textToHide"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
