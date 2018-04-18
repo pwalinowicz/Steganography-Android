@@ -1,6 +1,10 @@
 package com.example.pw.hideyourmessageinwav;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,12 +15,17 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.nbsp.materialfilepicker.MaterialFilePicker;
+import com.nbsp.materialfilepicker.ui.FilePickerActivity;
+
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class HideMessage extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private int levelsOfDecomposition;
     private String message;
+    private String filePath;
     private Wavelet wavelet;
     private static final String[] spinnerLevelValues = new String[]{"1", "2", "3", "4"};
     private static final String[] waveletTypes = new String[]{"Haar", "Daubechies D4"};
@@ -45,90 +54,40 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hide_message);
 
-        try {
-            /// INPUT ///
+        /// INPUT ///
+        ArrayAdapter levelsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, spinnerLevelValues);
+        Spinner decompLevel = (Spinner) findViewById(R.id.decompLevelSpinner);
+        decompLevel.setAdapter(levelsAdapter);
+        decompLevel.setOnItemSelectedListener(this);
 
-            ArrayAdapter levelsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, spinnerLevelValues);
-            Spinner decompLevel = (Spinner) findViewById(R.id.decompLevelSpinner);
-            decompLevel.setAdapter(levelsAdapter);
-            decompLevel.setOnItemSelectedListener(this);
+        ArrayAdapter waveletsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, waveletTypes);
+        Spinner waveletTypes = (Spinner) findViewById(R.id.waveletTypesSpinner);
+        waveletTypes.setAdapter(waveletsAdapter);
+        waveletTypes.setOnItemSelectedListener(this);
 
-            ArrayAdapter waveletsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, waveletTypes);
-            Spinner waveletTypes = (Spinner) findViewById(R.id.waveletTypesSpinner);
-            waveletTypes.setAdapter(waveletsAdapter);
-            waveletTypes.setOnItemSelectedListener(this);
-
-            Button buttonOK = (Button) findViewById(R.id.buttonOK);
-            buttonOK.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    EditText et = (EditText) findViewById(R.id.textToHide);
-                    message = et.getText().toString();
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                    //et.setText("");
-                    //et.requestFocus();
-                }
-            });
-
-            ///OPEN FILE///
-            WavFile wavFile = WavFile.openWavFile(new File("d:\\Documents\\Studia\\Inf\\VII+VIII Praca eng\\implemTest\\src\\resources\\0564.wav"));
-
-            ///DISPLAY INFO///
-            wavFile.display();
-
-            double[] completeArrayOfSamples = new double[(int) wavFile.getNumFrames()];
-
-            int framesRead;
-
-            int lengthOfSignal = completeArrayOfSamples.length;
-
-            ///READING SIGNAL///
-            do {
-                framesRead = wavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
+        Button buttonOK = (Button) findViewById(R.id.buttonOK);
+        buttonOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText et = (EditText) findViewById(R.id.textToHide);
+                message = et.getText().toString();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                //et.setText("");
+                //et.requestFocus();
             }
-            while (framesRead != 0);
+        });
 
-            System.out.println("Length of string: " + message.length());
-
-            StegoEngine stegoEngine = new StegoEngine();
-
-            ///EMBEDDING///
-            System.out.println("EMBEDDING");
-            stegoEngine.embedStegoMessageInSignal(completeArrayOfSamples, levelsOfDecomposition, message, wavelet);
-
-
-            ///SAVING FILE///
-            WavFile newWavFile = WavFile.newWavFile(new File("0564_new.wav"), wavFile.getNumChannels(), wavFile.getNumFrames(), wavFile.getValidBits(), wavFile.getSampleRate());
-            newWavFile.writeFrames(completeArrayOfSamples, (int) wavFile.getNumFrames());
-            newWavFile.display();
-
-            wavFile.close();
-            newWavFile.close();
-
-            ///OPENING FILE WITH EMBEDDED MESSAGE///
-            WavFile embeddedWavFile = WavFile.openWavFile(new File("d:\\Documents\\Studia\\Inf\\VII+VIII Praca eng\\implemTest\\0564_new.wav"));
-
-            embeddedWavFile.display();
-
-            completeArrayOfSamples = new double[(int) embeddedWavFile.getNumFrames()];
-            lengthOfSignal = completeArrayOfSamples.length;
-
-            ///READING SIGNAL///
-            do {
-                framesRead = embeddedWavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
+        Button buttonSearch = (Button) findViewById(R.id.buttonSearchFile);
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new MaterialFilePicker()
+                        .withActivity(HideMessage.this)
+                        .withRequestCode(1000)
+                        .withHiddenFiles(true) // Show hidden files and folders
+                        .start();
             }
-            while (framesRead != 0);
-
-            System.out.println("EXCTRACTING");
-            System.out.println("EMBEDDED message: " + message);
-
-            ///DECOMPOSING SIGNAL AND EXTRACTING THE MESSAGE///
-            System.out.println("EXCRACTED Message: " + stegoEngine.extractStegoMessageFromSignal(completeArrayOfSamples, levelsOfDecomposition, wavelet));
-
-        } catch (Exception e) {
-            System.err.println(e);
-        }
-
+        });
     }
 
     @Override
@@ -162,16 +121,84 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
 
     }
 
-//    public void getMessageFromEditText(View v) {
-//
-//        EditText et = (EditText) findViewById(R.id.textToHide);
-//        message = et.getText().toString();
-//
-//        if (message == "" || message == null) {
-//            Toast.makeText(getApplicationContext(), "No text?", Toast.LENGTH_SHORT).show();
-//        } else {
-//            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-//        }
-//
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1000 && resultCode == RESULT_OK) {
+            filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            Toast.makeText(getApplicationContext(), "" + filePath, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void embedMessage(View v) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ///OPEN FILE///
+                    WavFile wavFile = WavFile.openWavFile(new File(filePath));
+
+                    ///DISPLAY INFO///
+                    wavFile.display();
+
+                    double[] completeArrayOfSamples = new double[(int) wavFile.getNumFrames()];
+
+                    int framesRead;
+
+                    int lengthOfSignal = completeArrayOfSamples.length;
+
+                    ///READING SIGNAL///
+                    do {
+                        framesRead = wavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
+                    }
+                    while (framesRead != 0);
+
+                    System.out.println("Length of string: " + message.length());
+
+                    StegoEngine stegoEngine = new StegoEngine();
+
+                    ///EMBEDDING///
+                    System.out.println("EMBEDDING");
+                    stegoEngine.embedStegoMessageInSignal(completeArrayOfSamples, levelsOfDecomposition, message, wavelet);
+
+                    filePath = filePath.substring(0, filePath.length() - 4);
+                    filePath = filePath + "embedded.wav";
+                    ///SAVING FILE///
+                    WavFile newWavFile = WavFile.newWavFile(new File(filePath), wavFile.getNumChannels(), wavFile.getNumFrames(), wavFile.getValidBits(), wavFile.getSampleRate());
+                    newWavFile.writeFrames(completeArrayOfSamples, (int) wavFile.getNumFrames());
+                    newWavFile.display();
+
+                    wavFile.close();
+                    newWavFile.close();
+
+                    ///OPENING FILE WITH EMBEDDED MESSAGE///
+                    WavFile embeddedWavFile = WavFile.openWavFile(new File(filePath + ""));
+
+                    embeddedWavFile.display();
+
+                    completeArrayOfSamples = new double[(int) embeddedWavFile.getNumFrames()];
+                    lengthOfSignal = completeArrayOfSamples.length;
+
+                    ///READING SIGNAL///
+                    do {
+                        framesRead = embeddedWavFile.readFrames(completeArrayOfSamples, lengthOfSignal);
+                    }
+                    while (framesRead != 0);
+
+                    System.out.println("EXCTRACTING");
+                    System.out.println("EMBEDDED message: " + message);
+
+                    ///DECOMPOSING SIGNAL AND EXTRACTING THE MESSAGE///
+                    System.out.println("EXCRACTED Message: " + stegoEngine.extractStegoMessageFromSignal(completeArrayOfSamples, levelsOfDecomposition, wavelet));
+
+                } catch (Exception e) {
+                    System.err.println(e);
+                }
+            }
+        });
+
+    }
+
 }
