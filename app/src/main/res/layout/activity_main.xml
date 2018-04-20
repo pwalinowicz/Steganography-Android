@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.pw.hideyourmessageinwav.MainActivity">
+    tools:context="com.example.pw.hideyourmessageinwav.MainActivity"
+    tools:layout_editor_absoluteY="81dp">
 
     <Button
         android:id="@+id/hideButton"
@@ -16,7 +17,7 @@
         android:backgroundTint="@android:color/holo_blue_dark"
         android:text="Hide Message"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.089"
+        app:layout_constraintHorizontal_bias="0.039"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,7 +31,7 @@
         android:backgroundTint="@android:color/holo_green_dark"
         android:text="Extract Message"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toEndOf="@+id/hideButton"
         app:layout_constraintTop_toTopOf="parent" />
 

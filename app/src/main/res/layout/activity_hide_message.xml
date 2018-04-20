@@ -24,14 +24,14 @@
         android:id="@+id/CircleProgressEmbedding"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginBottom="96dp"
+        android:layout_marginBottom="108dp"
         android:layout_marginEnd="88dp"
         android:layout_marginStart="8dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.181"
-        app:layout_constraintStart_toEndOf="@+id/button4"
+        app:layout_constraintStart_toEndOf="@+id/extractButton"
         app:mlpb_arrow_height="5dp"
         app:mlpb_arrow_width="10dp"
         app:mlpb_progress_stoke_width="5dp"
@@ -99,7 +99,7 @@
         app:layout_constraintTop_toBottomOf="@+id/waveletTypesSpinner" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/extractButton"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
@@ -120,5 +120,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textToHide"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/successEmbed"
+        android:layout_width="110dp"
+        android:layout_height="36dp"
+        android:layout_marginBottom="48dp"
+        android:layout_marginStart="136dp"
+        android:text="SUCCESS"
+        android:textSize="24sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

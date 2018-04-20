@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -143,26 +144,31 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
     public void embedMessage(View v) {
 
         new LongOperation().execute();
-        embeddingProgressBar.setVisibility(View.VISIBLE);
+//        embeddingProgressBar.setVisibility(View.VISIBLE);
 
-        CountDownTimer timer = new CountDownTimer(2000, 100) {
-            int progress = 0;
-
-            @Override
-            public void onTick(long l) {
-                progress += 5;
-                embeddingProgressBar.setProgress(progress);
-                if (progress >= 100) {
-                    embeddingProgressBar.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void onFinish() {
-                embeddingProgressBar.setVisibility(View.INVISIBLE);
-            }
-        }.start();
-
+//        CountDownTimer timer = new CountDownTimer(1000, 100) {
+//            int progress = 0;
+//
+//            @Override
+//            public void onTick(long l) {
+//                progress += 10;
+//                embeddingProgressBar.setProgress(progress);
+//                if (progress >= 100) {
+//                    embeddingProgressBar.setVisibility(View.INVISIBLE);
+//                }
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//
+//                TextView successEmbed = (TextView) findViewById(R.id.successEmbed);
+//                embeddingProgressBar.setVisibility(View.INVISIBLE);
+//
+//                successEmbed.setVisibility((View.VISIBLE));
+//                SystemClock.sleep(2000);
+//                finish();
+//            }
+//        }.start();
 
     }
 
@@ -174,8 +180,6 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
 
         @Override
         protected Void doInBackground(Void... arg0) {
-
-            int progress = 0;
 
             try {
                 ///OPEN FILE///
@@ -215,6 +219,11 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
 
         @Override
         protected void onPostExecute(Void result) {
+
+            TextView successEmbed = (TextView) findViewById(R.id.successEmbed);
+            successEmbed.setVisibility((View.VISIBLE));
+            SystemClock.sleep(2000);
+            finish();
 
         }
 
