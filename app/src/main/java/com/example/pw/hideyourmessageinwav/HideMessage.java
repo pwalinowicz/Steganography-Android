@@ -222,8 +222,8 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
 
             TextView successEmbed = (TextView) findViewById(R.id.successEmbed);
             successEmbed.setVisibility((View.VISIBLE));
-            SystemClock.sleep(2000);
-            finish();
+            //SystemClock.sleep(4000);
+            //finish();
 
         }
 

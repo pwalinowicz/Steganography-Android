@@ -110,7 +110,6 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
                 }
                 while (framesRead != 0);
 
-
                 ///DECOMPOSING SIGNAL AND EXTRACTING THE MESSAGE///
                 StegoEngine stegoEngine = new StegoEngine();
                 extractedMessage = stegoEngine.extractStegoMessageFromSignal(completeArrayOfSamples, levelsOfDecomposition, wavelet);
@@ -125,12 +124,10 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
         @Override
         protected void onPostExecute(Void result) {
 
-
             TextView messageTextView = (TextView) findViewById(R.id.extractedMessage);
             messageTextView.setText(messageTextView.getText() + " " + extractedMessage);
-            SystemClock.sleep(2000);
+            //SystemClock.sleep(2000);
            // finish();
-
         }
     }
 

@@ -1,9 +1,5 @@
 package com.example.pw.hideyourmessageinwav;
 
-/**
- * Created by PW on 2018-04-17.
- */
-
 import java.io.*;
 
 public class WavFile {

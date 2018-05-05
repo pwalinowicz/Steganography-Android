@@ -77,7 +77,6 @@ public class StegoEngine {
 
     }
 
-
     public String extractStegoMessageFromSignal(double[] signal, int levelsOfDecomposition, Wavelet wavelet) {
 
         String hiddenText;
