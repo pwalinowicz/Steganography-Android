@@ -1,6 +1,8 @@
 package com.example.pw.hideyourmessageinwav;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -8,8 +10,11 @@ import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,7 +36,9 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
     private int levelsOfDecomposition;
     private String message;
     private String filePath;
+    private String newFilePath;
     private Wavelet wavelet;
+    EditText et;
     private static final String[] spinnerLevelValues = new String[]{"1", "2", "3", "4"};
     private static final String[] waveletTypes = new String[]{"Haar", "Daubechies D4"};
 
@@ -71,12 +78,21 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
         waveletTypes.setAdapter(waveletsAdapter);
         waveletTypes.setOnItemSelectedListener(this);
 
-        Button buttonOK = (Button) findViewById(R.id.buttonOK);
-        buttonOK.setOnClickListener(new View.OnClickListener() {
+        et = (EditText) findViewById(R.id.textToHide);
+        et.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View view) {
-                EditText et = (EditText) findViewById(R.id.textToHide);
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 message = et.getText().toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
 
@@ -132,18 +148,67 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
         }
     }
 
+    private boolean isMessageLongEnoughForFile() {
+
+        boolean result = true;
+
+        try {
+            WavFile wavFile = WavFile.openWavFile(new File(filePath));
+            double sampleCount = wavFile.getNumFrames();
+
+            if (message.length() > sampleCount/Math.pow(2,levelsOfDecomposition) ) {
+                result = false;
+            }
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+        return result;
+    }
+
     public void embedMessage(View v) {
 
-        if (filePath == null) {
-            Toast.makeText(getApplicationContext(), "File not chosen! Please search for .wav file", Toast.LENGTH_SHORT).show();
-        }
-        else if (message == null){
-            Toast.makeText(getApplicationContext(), "No message was written to be embedded!", Toast.LENGTH_SHORT).show();
-            Toast.makeText(getApplicationContext(), "Please write your message and click OK button", Toast.LENGTH_SHORT).show();
-        } else{
-            new LongOperation().execute();
+        if (filePath != null && message != null && isMessageLongEnoughForFile()) {
+
+            final int index = filePath.lastIndexOf("/");
+            final String absolutePath = filePath.substring(0, index + 1);
+
+            AlertDialog.Builder fileNameAlert = new AlertDialog.Builder(this);
+
+            fileNameAlert.setMessage("Name of the new .wav file:");
+
+            final EditText inputFileName = new EditText(this);
+            fileNameAlert.setView(inputFileName);
+
+            fileNameAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    newFilePath = absolutePath + inputFileName.getText().toString() + ".wav";
+
+                    new LongOperation().execute();
+                    Toast.makeText(getApplicationContext(), "MESSAGE EMBEDDED SUCCESSFULLY", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            fileNameAlert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+
+            fileNameAlert.show();
+
+        } else {
+            if (filePath == null) {
+                Toast.makeText(getApplicationContext(), "File not chosen! Please search for .wav file", Toast.LENGTH_SHORT).show();
+            }else if (message == null) {
+                Toast.makeText(getApplicationContext(), "No message was written to be embedded! Please write your message", Toast.LENGTH_SHORT).show();
+            } else if (!isMessageLongEnoughForFile()){
+                Toast.makeText(getApplicationContext(), "Message is too long to be embedded! Please shorten your message or provide longer .wav file", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
+
 
     private class LongOperation extends AsyncTask<Void, Void, Void> {
 
@@ -173,11 +238,11 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
                 ///EMBEDDING///
                 stegoEngine.embedStegoMessageInSignal(completeArrayOfSamples, levelsOfDecomposition, message, wavelet);
 
-                filePath = filePath.substring(0, filePath.length() - 4);
-                filePath = filePath + "embedded.wav";
+//                newFilePath = filePath.substring(0, filePath.length() - 4);
+//                newFilePath = newFilePath + "embedded.wav";
 
                 ///SAVING FILE///
-                WavFile newWavFile = WavFile.newWavFile(new File(filePath), wavFile.getNumChannels(), wavFile.getNumFrames(), wavFile.getValidBits(), wavFile.getSampleRate());
+                WavFile newWavFile = WavFile.newWavFile(new File(newFilePath), wavFile.getNumChannels(), wavFile.getNumFrames(), wavFile.getValidBits(), wavFile.getSampleRate());
                 newWavFile.writeFrames(completeArrayOfSamples, (int) wavFile.getNumFrames());
 
                 wavFile.close();
@@ -186,15 +251,11 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
             } catch (Exception e) {
                 System.err.println(e);
             }
-
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-
-            TextView successEmbed = (TextView) findViewById(R.id.successEmbed);
-            successEmbed.setVisibility((View.VISIBLE));
 
         }
 

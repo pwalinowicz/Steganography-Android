@@ -119,13 +119,11 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
             } catch (Exception e) {
                 System.err.println(e);
             }
-
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-
             Intent i = new Intent(ExtractMessage.this, ShowExtractedMessage.class);
             i.putExtra("msg",extractedMessage);
             startActivity(i);
