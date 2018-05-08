@@ -35,7 +35,6 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
     private static final String[] spinnerLevelValues = new String[]{"1", "2", "3", "4"};
     private static final String[] waveletTypes = new String[]{"Haar", "Daubechies D4"};
 
-    CircleProgressBar embeddingProgressBar;
 
     public static Wavelet createWaveletFromType(Wavelet.WaveletType type) {
         Wavelet wavelet;
@@ -61,9 +60,6 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hide_message);
 
-        embeddingProgressBar = (CircleProgressBar) findViewById(R.id.CircleProgressEmbedding);
-        embeddingProgressBar.setColorSchemeResources(android.R.color.holo_green_light);
-
         /// INPUT ///
         ArrayAdapter levelsAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, spinnerLevelValues);
         Spinner decompLevel = (Spinner) findViewById(R.id.decompLevelSpinner);
@@ -81,9 +77,6 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
             public void onClick(View view) {
                 EditText et = (EditText) findViewById(R.id.textToHide);
                 message = et.getText().toString();
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                //et.setText("");
-                //et.requestFocus();
             }
         });
 
@@ -93,8 +86,9 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
             public void onClick(View view) {
                 new MaterialFilePicker()
                         .withActivity(HideMessage.this)
+                        .withFilter(Pattern.compile(".*\\.wav$"))
                         .withRequestCode(1000)
-                        .withHiddenFiles(true) // Show hidden files and folders
+                        .withHiddenFiles(true)
                         .start();
             }
         });
@@ -117,11 +111,9 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
                         wavelet = null;
                         break;
                 }
-                Toast.makeText(getApplicationContext(), "" + stringWaveletType, Toast.LENGTH_SHORT).show();
                 break;
             case R.id.decompLevelSpinner:
                 levelsOfDecomposition = Integer.valueOf(spinnerLevelValues[i]);
-                Toast.makeText(getApplicationContext(), "" + levelsOfDecomposition, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -137,39 +129,20 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
 
         if (requestCode == 1000 && resultCode == RESULT_OK) {
             filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            Toast.makeText(getApplicationContext(), "" + filePath, Toast.LENGTH_SHORT).show();
         }
     }
 
     public void embedMessage(View v) {
 
-        new LongOperation().execute();
-//        embeddingProgressBar.setVisibility(View.VISIBLE);
-
-//        CountDownTimer timer = new CountDownTimer(1000, 100) {
-//            int progress = 0;
-//
-//            @Override
-//            public void onTick(long l) {
-//                progress += 10;
-//                embeddingProgressBar.setProgress(progress);
-//                if (progress >= 100) {
-//                    embeddingProgressBar.setVisibility(View.INVISIBLE);
-//                }
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//
-//                TextView successEmbed = (TextView) findViewById(R.id.successEmbed);
-//                embeddingProgressBar.setVisibility(View.INVISIBLE);
-//
-//                successEmbed.setVisibility((View.VISIBLE));
-//                SystemClock.sleep(2000);
-//                finish();
-//            }
-//        }.start();
-
+        if (filePath == null) {
+            Toast.makeText(getApplicationContext(), "File not chosen! Please search for .wav file", Toast.LENGTH_SHORT).show();
+        }
+        else if (message == null){
+            Toast.makeText(getApplicationContext(), "No message was written to be embedded!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Please write your message and click OK button", Toast.LENGTH_SHORT).show();
+        } else{
+            new LongOperation().execute();
+        }
     }
 
     private class LongOperation extends AsyncTask<Void, Void, Void> {
@@ -222,8 +195,6 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
 
             TextView successEmbed = (TextView) findViewById(R.id.successEmbed);
             successEmbed.setVisibility((View.VISIBLE));
-            //SystemClock.sleep(4000);
-            //finish();
 
         }
 

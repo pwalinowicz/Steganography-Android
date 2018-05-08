@@ -2,25 +2,21 @@ package com.example.pw.hideyourmessageinwav;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class ExtractMessage extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
@@ -73,6 +69,7 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
             public void onClick(View view) {
                 new MaterialFilePicker()
                         .withActivity(ExtractMessage.this)
+                        .withFilter(Pattern.compile(".*\\.wav$"))
                         .withRequestCode(1000)
                         .withHiddenFiles(true) // Show hidden files and folders
                         .start();
@@ -82,10 +79,13 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
 
     public void extractMessage(View v) {
 
-       new LongOperation().execute();
+       if (filePath == null) {
+           Toast.makeText(getApplicationContext(), "File not chosen! Please search for .wav file", Toast.LENGTH_SHORT).show();
+       } else {
+           new LongOperation().execute();
+       }
 
     }
-
 
     private class LongOperation extends AsyncTask<Void, Void, Void> {
 
@@ -114,6 +114,8 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
                 StegoEngine stegoEngine = new StegoEngine();
                 extractedMessage = stegoEngine.extractStegoMessageFromSignal(completeArrayOfSamples, levelsOfDecomposition, wavelet);
 
+                embeddedWavFile.close();
+
             } catch (Exception e) {
                 System.err.println(e);
             }
@@ -124,10 +126,9 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
         @Override
         protected void onPostExecute(Void result) {
 
-            TextView messageTextView = (TextView) findViewById(R.id.extractedMessage);
-            messageTextView.setText(messageTextView.getText() + " " + extractedMessage);
-            //SystemClock.sleep(2000);
-           // finish();
+            Intent i = new Intent(ExtractMessage.this, ShowExtractedMessage.class);
+            i.putExtra("msg",extractedMessage);
+            startActivity(i);
         }
     }
 
@@ -148,11 +149,9 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
                         wavelet = null;
                         break;
                 }
-                Toast.makeText(getApplicationContext(), "" + stringWaveletType, Toast.LENGTH_SHORT).show();
                 break;
             case R.id.decompLevelSpinner:
                 levelsOfDecomposition = Integer.valueOf(spinnerLevelValues[i]);
-                Toast.makeText(getApplicationContext(), "" + levelsOfDecomposition, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -168,9 +167,7 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
 
         if (requestCode == 1000 && resultCode == RESULT_OK) {
             filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
-            Toast.makeText(getApplicationContext(), "" + filePath, Toast.LENGTH_SHORT).show();
         }
     }
-
 
 }

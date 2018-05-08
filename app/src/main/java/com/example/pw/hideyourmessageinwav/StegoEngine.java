@@ -4,6 +4,8 @@ package com.example.pw.hideyourmessageinwav;
  * Created by PW on 2018-04-17.
  */
 
+import android.widget.Toast;
+
 import static java.lang.Math.*;
 
 public class StegoEngine {
@@ -50,19 +52,19 @@ public class StegoEngine {
 
         char[] charArray = stegoText.toCharArray();
         double[] asciiStegoArray = new double[charArray.length];
+        int length = signal.length;
+        double decompFactor = Math.pow(2, (levelsOfDecomposition - 1));
 
         for (int i = 0; i < charArray.length; i++) {
             asciiStegoArray[i] = (double) (((int) charArray[i])) / coefficientDivisionFactor;
         }
-
-        int length = signal.length;
 
         for (int j = 0; j < levelsOfDecomposition; j++) {
             wavelet.forwardTransform(signal, length);
             length /= 2;
         }
 
-        double decompFactor = Math.pow(2, (levelsOfDecomposition - 1));
+
         length = (signal.length / (int) decompFactor);
 
         signal[0] = (double) (charArray.length) / coefficientDivisionFactor;
@@ -73,8 +75,6 @@ public class StegoEngine {
             wavelet.inverseTransform(signal, length);
             length *= 2;
         }
-        System.out.println("Embedding finished");
-
     }
 
     public String extractStegoMessageFromSignal(double[] signal, int levelsOfDecomposition, Wavelet wavelet) {
@@ -98,8 +98,6 @@ public class StegoEngine {
             wavelet.inverseTransform(signal, length);
             length *= 2;
         }
-
-        System.out.println("Extracting finished");
 
         return hiddenText;
     }
