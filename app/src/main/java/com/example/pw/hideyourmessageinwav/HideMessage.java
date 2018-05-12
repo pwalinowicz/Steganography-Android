@@ -184,7 +184,6 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
             fileNameAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     newFilePath = absolutePath + inputFileName.getText().toString() + ".wav";
-
                     new LongOperation().execute();
                     Toast.makeText(getApplicationContext(), "MESSAGE EMBEDDED SUCCESSFULLY", Toast.LENGTH_SHORT).show();
                 }
@@ -237,9 +236,6 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
 
                 ///EMBEDDING///
                 stegoEngine.embedStegoMessageInSignal(completeArrayOfSamples, levelsOfDecomposition, message, wavelet);
-
-//                newFilePath = filePath.substring(0, filePath.length() - 4);
-//                newFilePath = newFilePath + "embedded.wav";
 
                 ///SAVING FILE///
                 WavFile newWavFile = WavFile.newWavFile(new File(newFilePath), wavFile.getNumChannels(), wavFile.getNumFrames(), wavFile.getValidBits(), wavFile.getSampleRate());
