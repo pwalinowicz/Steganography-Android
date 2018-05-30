@@ -8,23 +8,9 @@ import static java.lang.Math.sqrt;
 
 public class DaubechiesD4Wavelet extends Wavelet {
 
-    private double h0;
-    private double h1;
-    private double h2;
-    private double h3;
-    private double g0;
-    private double g1;
-    private double g2;
-    private double g3;
+    private double h0, h1, h2, h3, g0, g1, g2, g3;
 
-    private double Ih0;
-    private double Ih1;
-    private double Ih2;
-    private double Ih3;
-    private double Ig0;
-    private double Ig1;
-    private double Ig2;
-    private double Ig3;
+    private double Ih0, Ih1, Ih2, Ih3, Ig0, Ig1, Ig2, Ig3;
 
     public DaubechiesD4Wavelet() {
         super(WaveletType.DaubechiesD4Wavelet);

@@ -38,7 +38,7 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
     private String filePath;
     private String newFilePath;
     private Wavelet wavelet;
-    EditText et;
+    private EditText et;
     private static final String[] spinnerLevelValues = new String[]{"1", "2", "3", "4"};
     private static final String[] waveletTypes = new String[]{"Haar", "Daubechies D4"};
 
@@ -208,7 +208,6 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
         }
     }
 
-
     private class LongOperation extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -222,7 +221,7 @@ public class HideMessage extends AppCompatActivity implements AdapterView.OnItem
                 ///OPEN FILE///
                 WavFile wavFile = WavFile.openWavFile(new File(filePath));
 
-                double[] completeArrayOfSamples = new double[(int) wavFile.getNumFrames()];
+                double[] completeArrayOfSamples = new double[(int) wavFile.getNumFrames()*wavFile.getNumChannels()];
                 int framesRead;
                 int lengthOfSignal = completeArrayOfSamples.length;
 

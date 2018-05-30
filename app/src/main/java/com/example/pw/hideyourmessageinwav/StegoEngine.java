@@ -64,7 +64,6 @@ public class StegoEngine {
             length /= 2;
         }
 
-
         length = (signal.length / (int) decompFactor);
 
         signal[0] = (double) (charArray.length) / coefficientDivisionFactor;
@@ -92,7 +91,6 @@ public class StegoEngine {
 
         double decompFactor = Math.pow(2, (levelsOfDecomposition - 1));
         length = (signal.length / (int) decompFactor);
-
 
         for (int j = 0; j < levelsOfDecomposition; j++) {
             wavelet.inverseTransform(signal, length);

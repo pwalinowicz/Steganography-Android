@@ -100,7 +100,7 @@ public class ExtractMessage extends AppCompatActivity implements AdapterView.OnI
                 ///OPENING FILE WITH EMBEDDED MESSAGE///
                 WavFile embeddedWavFile = WavFile.openWavFile(new File(filePath));
 
-                double[] completeArrayOfSamples = new double[(int) embeddedWavFile.getNumFrames()];
+                double[] completeArrayOfSamples = new double[(int) embeddedWavFile.getNumFrames()*embeddedWavFile.getNumChannels()];
                 int framesRead;
                 int lengthOfSignal = completeArrayOfSamples.length;
 
