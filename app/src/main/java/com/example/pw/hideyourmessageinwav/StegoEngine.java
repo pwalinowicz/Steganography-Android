@@ -10,7 +10,7 @@ import static java.lang.Math.*;
 
 public class StegoEngine {
 
-    private int coefficientDivisionFactor = 5000;
+    private int coefficientDivisionFactor = 10000;
 
     private void changeWaveletCoefficientsToStegoAscii(double[] signal, double[] asciiStegoArray) {
 
